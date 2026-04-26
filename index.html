@@ -8,6 +8,8 @@
 <title>PIZOT Thomas — Espace Vert</title>
 <!-- SVG Favicon -->
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3CclipPath id='c'%3E%3Cpolygon points='32,4 60,32 32,60 4,32'/%3E%3C/clipPath%3E%3Cpattern id='d' width='7' height='7' patternUnits='userSpaceOnUse'%3E%3Crect width='7' height='7' fill='%23a3c9a0'/%3E%3Ccircle cx='3.5' cy='3.5' r='1.1' fill='%232d5438'/%3E%3C/pattern%3E%3Cpattern id='l' width='5' height='5' patternUnits='userSpaceOnUse'%3E%3Crect width='5' height='5' fill='%232d5438'/%3E%3Cline x1='2.5' y1='0' x2='2.5' y2='5' stroke='%234a7c55' stroke-width='1.5'/%3E%3C/pattern%3E%3C/defs%3E%3Cpolygon points='32,4 60,32 32,32' clip-path='url(%23c)' fill='url(%23d)'/%3E%3Cpolygon points='4,32 60,32 32,60' clip-path='url(%23c)' fill='url(%23l)'/%3E%3Cpolygon points='6,42 32,32 6,32' clip-path='url(%23c)' fill='%23d97535'/%3E%3Cpolygon points='32,4 60,32 32,60 4,32' fill='none' stroke='rgba(255,255,255,.3)' stroke-width='2'/%3E%3Cg fill='none' stroke='white' stroke-linecap='round' stroke-linejoin='round'%3E%3Cline x1='32' y1='52' x2='32' y2='46'/%3E%3Cpolyline points='26,46 32,37 38,46'/%3E%3Cpolyline points='27,40 32,32 37,40'/%3E%3Cpolyline points='29,35 32,28 35,35'/%3E%3C/g%3E%3C/svg%3E">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;600;700;800;900&family=Open+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 /* ══════════════ TOKENS ══════════════ */
@@ -180,7 +182,7 @@ tr:active td{background:var(--bg)}
 .calnav{display:flex;align-items:center;gap:10px}
 .calnav button{width:34px;height:34px;border-radius:8px;border:2px solid rgba(255,255,255,.3);background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;color:var(--white)}
 .calnav button:active{background:rgba(255,255,255,.2)}
-.mtitle{font-family:'Raleway',sans-serif;font-size:14px;font-weight:900;color:var(--white);min-width:145px;text-align:center;text-transform:uppercase;letter-spacing:.3px}
+.mtitle{font-family:'Raleway',sans-serif;font-size:13px;font-weight:900;color:var(--white);min-width:0;flex:1;text-align:center;text-transform:uppercase;letter-spacing:.2px;white-space:nowrap}
 .month-sum{display:flex;background:rgba(255,255,255,.12);border-radius:8px;overflow:hidden;margin-bottom:11px}
 .ms-i{flex:1;padding:7px 6px;text-align:center;border-right:1px solid rgba(255,255,255,.15)}
 .ms-i:last-child{border-right:none}
@@ -237,9 +239,13 @@ tr:active td{background:var(--bg)}
 
 /* ══════════════ REP SECTION ══════════════ */
 .rep-section{background:var(--bg);border-radius:10px;padding:12px;margin-top:8px;display:none}
-.rep-row{display:flex;align-items:center;gap:8px;margin-bottom:9px}
-.rep-row span{flex:1;font-size:13px;font-weight:700}
-.rep-row input[type=number]{width:64px;text-align:center;font-size:14px;min-height:38px}
+.rep-row{display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:nowrap}
+.rep-row .rep-name{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:700;width:90px;flex-shrink:0;overflow:hidden}
+.rep-row .rep-name span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rep-slider{flex:1;-webkit-appearance:none;appearance:none;height:7px;border-radius:4px;outline:none;cursor:grab;background:linear-gradient(to right,var(--orange) 0%,var(--orange) var(--val,50%),var(--border) var(--val,50%),var(--border) 100%)}
+.rep-slider::-webkit-slider-thumb{-webkit-appearance:none;width:26px;height:26px;border-radius:50%;background:var(--orange);cursor:grab;border:3px solid white;box-shadow:0 2px 8px rgba(0,0,0,.25)}
+.rep-slider:active::-webkit-slider-thumb{cursor:grabbing;background:var(--orange2);transform:scale(1.1)}
+.rep-pct{font-family:'Raleway',sans-serif;font-weight:900;font-size:13px;color:var(--dark);width:36px;text-align:right;flex-shrink:0}
 
 /* ══════════════ ALERT + RELANCE ══════════════ */
 .alert-30{background:var(--red-pale);border-left:4px solid var(--red);border-radius:0 10px 10px 0;padding:12px 14px;margin-bottom:8px}
@@ -279,6 +285,13 @@ tr:active td{background:var(--bg)}
 .legend span{display:flex;align-items:center;gap:4px}
 .urg1{color:#d97706;font-weight:700}.urg2{color:var(--red);font-weight:800}
 
+/* ══════════════ MAP ══════════════ */
+#dash-map{height:320px;width:100%;border-radius:0 0 var(--r) var(--r)}
+#dash-map .leaflet-container{border-radius:0 0 var(--r) var(--r)}
+.map-empty{height:320px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px;color:var(--muted);font-size:13px;padding:20px;text-align:center}
+.map-legend{display:flex;gap:14px;justify-content:flex-end;padding:6px 14px 0;flex-wrap:wrap}
+.map-legend span{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--muted);font-weight:700;font-family:'Raleway',sans-serif}
+.map-legend i{display:inline-block;width:12px;height:12px;border-radius:50%;border:2px solid white;box-shadow:0 1px 3px rgba(0,0,0,.3)}
 /* ══════════════ RESPONSIVE ══════════════ */
 @media(max-width:640px){
   .bottom-nav{display:flex}
@@ -387,7 +400,6 @@ tr:active td{background:var(--bg)}
 
 <!-- ══════════════════════ APP ══════════════════════ -->
 <header id="app-header" style="display:none">
-  <div class="hdr-cesu">CESU accepté · Réduction Crédit d'Impôt -50% · 07 81 21 81 69</div>
   <div class="hdr-main">
     <div class="hdr-brand">
       <!-- APP LOGO (losange tronçonneuse) -->
@@ -422,10 +434,9 @@ tr:active td{background:var(--bg)}
     </div>
   </div>
   <nav class="topnav">
-    <button class="active" onclick="goTab('agenda',this)">📅 Agenda</button>
-    <button onclick="goTab('ch',this)">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" style="display:inline;vertical-align:middle;margin-right:3px"><rect x="2" y="8" width="9" height="7" rx="1.5"/><path d="M7 8V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v3"/><rect x="11" y="10" width="11" height="3" rx="1.5"/><circle cx="22" cy="11.5" r="2"/></svg>Chantiers
-    </button>
+    <button onclick="goTab('agenda',this)">📅 Agenda</button>
+    <button class="active" onclick="goTab('ch',this)">⛏ Chantiers</button>
+    <button onclick="goTab('clients',this)">👤 Clients</button>
     <button onclick="goTab('rgl',this)">💶 Règlements</button>
     <button onclick="goTab('mat',this)">🔧 Matériels</button>
     <button onclick="goTab('dash',this)">📊 Dashboard</button>
@@ -434,12 +445,12 @@ tr:active td{background:var(--bg)}
 
 <main id="app-main" style="display:none">
 <!-- AGENDA -->
-<div id="tc-agenda" class="tc active">
+<div id="tc-agenda" class="tc">
   <div class="chip-filter"><button class="chip active" onclick="setAFlt('all',this)">Tous</button><button class="chip" onclick="setAFlt('realise',this)">⛏ Chantiers</button><button class="chip" onclick="setAFlt('rdv',this)">📋 RDV</button><button class="chip" onclick="setAFlt('devis',this)">📋 Devis</button><button class="chip" onclick="setAFlt('perso',this)">👤 Perso</button></div>
   <div class="card">
     <div class="card-hdr">
       <div class="calnav"><button onclick="cprev()">←</button><div class="mtitle" id="cal-title"></div><button onclick="cnext()">→</button></div>
-      <div style="display:flex;gap:5px"><button class="btn btn-b btn-sm" onclick="openRdv()">+ RDV</button><button class="btn btn-o btn-sm" onclick="openCh()">+ Chantier</button></div>
+      <button class="btn btn-b btn-sm" onclick="openRdv()">+ RDV</button>
     </div>
     <div class="obar"></div>
     <div class="card-body"><div class="month-sum" id="month-sum"></div><div class="calgrid" id="calgrid"></div>
@@ -447,7 +458,7 @@ tr:active td{background:var(--bg)}
     </div>
   </div>
   <div class="card" id="day-card" style="display:none">
-    <div class="card-hdr"><div class="ctitle" id="ddt">📋 Journée</div><div style="display:flex;gap:5px"><button class="btn btn-b btn-sm" onclick="openRdv(selDate)">+ RDV</button><button class="btn btn-o btn-sm" onclick="openCh(selDate)">+ Chantier</button></div></div>
+    <div class="card-hdr" style="flex-wrap:wrap;gap:6px"><div class="ctitle" id="ddt">📋 Journée</div><div style="display:flex;gap:5px;flex-shrink:0"><button class="btn btn-b btn-sm" onclick="openRdv(selDate)">+ RDV</button><button class="btn btn-o btn-sm" onclick="openCh(selDate)">+ Chantier</button><button class="btn btn-g btn-sm" onclick="clearSelDay()" title="Retour vue globale" style="font-size:16px;padding:0;width:34px">✕</button></div></div>
     <div class="obar"></div><div class="card-body" id="ddc"></div>
   </div>
   <div class="card"><div class="card-hdr"><div class="ctitle">🔔 À venir (7j)</div></div><div class="obar"></div><div class="card-body" id="upcoming"></div></div>
@@ -457,8 +468,30 @@ tr:active td{background:var(--bg)}
   </div>
 </div>
 
+<!-- CLIENTS -->
+<div id="tc-clients" class="tc">
+  <div class="card">
+    <div class="card-hdr"><div class="ctitle">👤 Base clients</div><button class="btn btn-o btn-sm" onclick="openClientEdit()">+ Nouveau</button></div>
+    <div class="obar"></div>
+    <div class="card-body">
+      <input type="text" id="client-search" placeholder="🔍 Rechercher..." oninput="renderClients()">
+      <div id="clients-list" style="margin-top:12px"></div>
+    </div>
+  </div>
+</div>
+
 <!-- CHANTIERS -->
-<div id="tc-ch" class="tc">
+<div id="tc-ch" class="tc active">
+  <!-- PLANIFIÉS -->
+  <div class="card" id="planned-card">
+    <div class="card-hdr" style="background:var(--blue2)">
+      <div class="ctitle">📋 RDV planifiés</div>
+      <button class="btn btn-sm" style="background:rgba(255,255,255,.2);color:white;border:none;font-size:10px" onclick="openRdv()">+ Planifier</button>
+    </div>
+    <div class="obar" style="background:var(--blue)"></div>
+    <div class="card-body" id="planned-body" style="padding:10px 14px"></div>
+  </div>
+  <!-- RÉALISÉS -->
   <div class="card">
     <div class="card-hdr">
       <div class="ctitle">
@@ -506,16 +539,32 @@ tr:active td{background:var(--bg)}
     <div class="card"><div class="card-hdr"><div class="ctitle">💳 Modes règlement</div></div><div class="obar"></div><div class="card-body" id="dash-modes"></div></div>
   </div>
   <div class="g2">
-    <div class="card"><div class="card-hdr"><div class="ctitle">👷 Collègues</div></div><div class="obar"></div><div class="card-body" id="colldash"></div></div>
+    <div class="card"><div class="card-hdr"><div class="ctitle">👷 Collègues</div><button class="btn btn-g btn-sm" onclick="toggleCollDet()" id="coll-det-btn">📋 Détail</button></div><div class="obar"></div><div class="card-body" id="colldash"></div></div>
+    <div class="card" id="coll-det-card" style="display:none"><div class="card-hdr"><div class="ctitle">👷 Détail chantiers avec collègues</div></div><div class="obar"></div><div class="card-body" id="coll-det-body" style="padding:0"></div></div>
     <div class="card"><div class="card-hdr"><div class="ctitle">🔧 Matériels (année)</div></div><div class="obar"></div><div class="card-body" id="matperf"></div></div>
+  </div>
+  <!-- MAP CARD -->
+  <div class="card" id="dash-map-card">
+    <div class="card-hdr">
+      <div class="ctitle">🗺️ Carte des chantiers clients</div>
+      <select id="map-year-flt" onchange="renderMap()" style="font-size:11px;padding:5px 8px;width:auto;min-width:80px"><option value="">Tous</option></select>
+    </div>
+    <div class="obar"></div>
+    <div class="map-legend">
+      <span><i style="background:#6d9a70;display:inline-block;width:12px;height:12px;border-radius:50%;border:2px solid white"></i>Tout réglé</span>
+      <span><i style="background:#d97535;display:inline-block;width:12px;height:12px;border-radius:50%;border:2px solid white"></i>Impayé</span>
+      <span><i style="background:#3b82c4;display:inline-block;width:12px;height:12px;border-radius:50%;border:2px solid white"></i>RDV</span>
+    </div>
+    <div id="dash-map" style="height:320px;width:100%"></div>
   </div>
 </div>
 </main>
 
 <!-- BOTTOM NAV -->
 <nav class="bottom-nav" id="app-nav" style="display:none">
-  <button class="active" onclick="goTab('agenda',this)" id="bn-agenda"><div class="bn-icon">📅</div><div class="bn-lbl">Agenda</div></button>
-  <button onclick="goTab('ch',this)" id="bn-ch"><div class="bn-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="2" y="8" width="8" height="7" rx="1.5"/><path d="M7 8V5.5A2 2 0 0 1 8.8 3.5h2a2 2 0 0 1 1.8 2V8"/><rect x="10" y="10" width="12" height="3" rx="1.5"/><circle cx="22" cy="11.5" r="2.2"/></svg></div><div class="bn-lbl">Chantiers</div></button>
+  <button onclick="goTab('agenda',this)" id="bn-agenda"><div class="bn-icon">📅</div><div class="bn-lbl">Agenda</div></button>
+  <button class="active" onclick="goTab('ch',this)" id="bn-ch"><div class="bn-icon">⛏</div><div class="bn-lbl">Chantiers</div></button>
+  <button onclick="goTab('clients',this)" id="bn-clients"><div class="bn-icon">👤</div><div class="bn-lbl">Clients</div></button>
   <button onclick="goTab('rgl',this)" id="bn-rgl"><div class="bn-icon">💶</div><div class="bn-lbl">Règlements</div></button>
   <button onclick="goTab('mat',this)" id="bn-mat"><div class="bn-icon">🔧</div><div class="bn-lbl">Matériels</div></button>
   <button onclick="goTab('dash',this)" id="bn-dash"><div class="bn-icon">📊</div><div class="bn-lbl">Dashboard</div></button>
@@ -537,7 +586,18 @@ tr:active td{background:var(--bg)}
       <div class="fg"><label class="fl">Montant (€)</label><input type="number" id="ch-mt" min="0" step=".01" placeholder="Auto" style="background:var(--bg)"></div>
       <div class="fg"><label class="fl">Prochaine visite</label><input type="date" id="ch-pv"></div>
       <div class="fg full"><label class="fl">Description / Travaux</label><textarea id="ch-desc" rows="2" placeholder="Tonte, taille haie, élagage..."></textarea></div>
-      <div class="fg full"><label class="fl">Collègue intervenant</label><input type="text" id="ch-coll" list="dl-coll" placeholder="Prénom Nom" autocomplete="off"><datalist id="dl-coll"></datalist></div>
+      <div class="fg full"><label class="fl">Collègue intervenant</label>
+        <input type="text" id="ch-coll" list="dl-coll" placeholder="Prénom Nom" autocomplete="off"
+               oninput="toggleCollDet()"><datalist id="dl-coll"></datalist>
+        <div id="fg-coll-det" style="display:none;margin-top:8px;background:var(--bg);border-radius:9px;padding:10px">
+          <div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.7px;color:var(--muted);margin-bottom:7px">Rémunération collègue</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
+            <div class="fg"><label class="fl">Heures</label><input type="number" id="ch-coll-h" min="0" step=".5" oninput="calcCollMt()" onchange="calcCollMt()"></div>
+            <div class="fg"><label class="fl">Taux €/h</label><input type="number" id="ch-coll-tx" min="0" step="1" placeholder="35" oninput="calcCollMt()" onchange="calcCollMt()"></div>
+            <div class="fg"><label class="fl">Montant</label><input type="number" id="ch-coll-mt" style="background:var(--bg)" placeholder="Auto" readonly="readonly"></div>
+          </div>
+        </div>
+      </div>
       <div class="fg full"><label class="fl">Matériels utilisés</label>
         <div id="ch-mats" style="display:flex;flex-wrap:wrap;gap:7px;padding:6px 0;min-height:36px"></div>
         <div class="rep-section" id="ch-rep">
@@ -550,12 +610,12 @@ tr:active td{background:var(--bg)}
       <div class="fg" id="fg-dp"><label class="fl">Date paiement</label><input type="date" id="ch-dp"></div>
       <div class="fg" id="fg-mp">
         <label class="fl">Mode paiement</label>
-        <select id="ch-mp" onchange="toggleML()"><option value="">—</option><option>CESU</option><option>Espèces</option><option>Chèque</option><option>Virement</option><option>CB</option><option value="Autre">Autre (préciser)</option></select>
+        <select id="ch-mp" onchange="toggleML()"><option value="">—</option><option>CESU</option><option>Espèces</option><option>Virement</option><option value="Autre">Autre (préciser)</option></select>
         <input type="text" id="ch-mp-libre" placeholder="Précisez..." style="display:none;margin-top:6px">
       </div>
       <div class="fg full"><label class="fl">Notes</label><textarea id="ch-notes" rows="2" placeholder="Code portail, accès, remarques..."></textarea></div>
     </div>
-    <div style="display:flex;gap:8px;margin-top:18px"><button class="btn btn-g" onclick="closeM('mov-ch')">Annuler</button><button class="btn btn-o btn-full" style="flex:1" onclick="saveCh()">💾 Enregistrer</button></div>
+    <div style="display:flex;gap:8px;margin-top:18px"><button class="btn btn-g" onclick="closeM('mov-ch');_rdvConvertId=null">Annuler</button><button class="btn btn-o btn-full" style="flex:1" onclick="saveCh()">💾 Enregistrer</button></div>
   </div>
 </div></div>
 
@@ -570,10 +630,10 @@ tr:active td{background:var(--bg)}
       <div class="fg"><label class="fl">Heure</label><input type="time" id="rdv-heure" value="08:00"></div>
       <div class="fg full"><label class="fl">Type de RDV</label>
         <div class="type-btns">
-          <div class="type-btn" data-t="pro" onclick="setRT('pro')">💼 Pro</div>
+          <div class="type-btn" data-t="pro" onclick="setRT('pro')">⛏ Chantier</div>
           <div class="type-btn" data-t="devis" onclick="setRT('devis')">📋 Devis</div>
           <div class="type-btn" data-t="perso" onclick="setRT('perso')">👤 Perso</div>
-          <div class="type-btn" data-t="intervention" onclick="setRT('intervention')">🔧 Intervention</div>
+          <div class="type-btn" data-t="intervention" onclick="setRT('intervention')">🔨 Réparation</div>
           <div class="type-btn" data-t="autre" onclick="setRT('autre')">📌 Autre</div>
         </div>
       </div>
@@ -619,6 +679,32 @@ tr:active td{background:var(--bg)}
   </div>
 </div></div>
 
+<!-- ════ MODAL CLIENT ════ -->
+<div class="mov" id="mov-client"><div class="modal">
+  <div class="modal-hdr"><span id="mcl-title">Nouveau client</span><button class="cbtn" onclick="closeM('mov-client')">✕</button></div>
+  <div class="obar"></div>
+  <div class="modal-body">
+    <input type="hidden" id="cl-eid">
+    <div class="fgrid">
+      <div class="fg"><label class="fl">Nom *</label><input type="text" id="cl-nom" placeholder="DUPONT"></div>
+      <div class="fg"><label class="fl">Prénom</label><input type="text" id="cl-prenom" placeholder="Jean"></div>
+      <div class="fg full"><label class="fl">Adresse</label><div class="addr-wrap"><input type="text" id="cl-adr" placeholder="Tapez pour rechercher..." autocomplete="off" oninput="aS(this,'cl-adr-drop')"><div class="addr-drop" id="cl-adr-drop"></div></div></div>
+      <div class="fg"><label class="fl">Téléphone</label><input type="tel" id="cl-tel" placeholder="06 12 34 56 78"></div>
+      <div class="fg"><label class="fl">Email</label><input type="email" id="cl-email" placeholder="jean@email.com"></div>
+      <div class="fg full"><label class="fl">Notes</label><textarea id="cl-note" rows="2" placeholder="Remarques, accès, code portail..."></textarea></div>
+    </div>
+    <div id="cl-history" style="display:none;margin-top:14px">
+      <div style="font-family:'Raleway',sans-serif;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);margin-bottom:8px">Historique activité</div>
+      <div id="cl-history-list"></div>
+    </div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:18px">
+      <button class="btn btn-d btn-sm" id="cl-del-btn" onclick="delClientById()" style="display:none">🗑️</button>
+      <button class="btn btn-g" onclick="closeM('mov-client')">Annuler</button>
+      <button class="btn btn-o btn-full" style="flex:1" onclick="saveCl()">💾 Enregistrer</button>
+    </div>
+  </div>
+</div></div>
+
 <!-- ════ MODAL ACTIONS ════ -->
 <div class="mov" id="mov-actions"><div class="modal" style="max-width:480px">
   <div class="modal-hdr"><span id="action-title">Actions</span><button class="cbtn" onclick="closeM('mov-actions')">✕</button></div>
@@ -634,7 +720,7 @@ tr:active td{background:var(--bg)}
   <div class="modal-body">
     <div style="background:var(--red-pale);border-radius:8px;padding:10px 12px;margin-bottom:12px;font-size:12px;color:var(--red);font-weight:600">⚠️ Impayé depuis J+<span id="relance-days"></span></div>
     <textarea id="relance-txt" rows="10" style="font-size:13px;line-height:1.7;border-color:#fca5a5"></textarea>
-    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:14px"><button class="btn btn-g" onclick="closeM('mov-relance')">Fermer</button><button class="btn btn-o" onclick="copyRelance()">📋 Copier</button><button class="btn btn-b" onclick="smsR()">📱 WhatsApp</button></div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:14px;flex-wrap:wrap"><button class="btn btn-g" onclick="closeM('mov-relance')">Fermer</button><button class="btn btn-o" onclick="copyRelance()">📋 Copier</button><button class="btn btn-b" onclick="mailRelance()">📧 Mail</button><button class="btn btn-p" onclick="smsR()">💬 SMS</button></div>
   </div>
 </div></div>
 
@@ -647,7 +733,7 @@ tr:active td{background:var(--bg)}
     <div style="background:var(--bg);border-radius:10px;padding:12px;margin-bottom:14px;font-size:12px;color:var(--muted)">
       💡 Cliquez sur <strong>Imprimer / PDF</strong> pour sauvegarder en PDF via votre navigateur (Imprimer → Enregistrer en PDF)
     </div>
-    <div style="display:flex;gap:8px;justify-content:flex-end"><button class="btn btn-g" onclick="closeM('mov-facture')">Fermer</button><button class="btn btn-o" onclick="printInv()">🖨️ Imprimer / PDF</button></div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap"><button class="btn btn-g" onclick="closeM('mov-facture')">Fermer</button><button class="btn btn-b" onclick="mailInvoice()">📧 Envoyer par mail</button><button class="btn btn-o" onclick="printInv()">🖨️ Imprimer / PDF</button></div>
   </div>
 </div></div>
 
@@ -678,10 +764,25 @@ tr:active td{background:var(--bg)}
     </div>
     <!-- BUTTONS -->
     <div style="display:flex;flex-direction:column;gap:10px">
+      <button class="btn btn-full" style="background:var(--orange);color:white;font-size:14px;min-height:52px;font-family:'Raleway',sans-serif;font-weight:800;text-transform:uppercase;letter-spacing:.5px;border:none;border-radius:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px" onclick="openGuide()">📖 Guide d'utilisation</button>
       <button class="btn btn-p btn-full" onclick="exportBk()" style="font-size:14px;min-height:52px">📥 Exporter mes données (backup)</button>
       <label class="btn btn-g btn-full" style="font-size:14px;min-height:52px;cursor:pointer">📤 Restaurer depuis un fichier<input type="file" accept=".json" style="display:none" onchange="importBk(this)"></label>
       <div style="border-top:1px solid var(--border);margin:4px 0"></div>
-
+      <!-- Délai relance -->
+      <div style="background:var(--bg);border-radius:10px;padding:12px;display:flex;align-items:center;justify-content:space-between">
+        <div><div style="font-weight:700;font-size:13px">⏰ Délai alerte impayé</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:2px">Déclenche la relance après</div></div>
+        <select id="relance-delay-sel" onchange="saveRelanceDelay(this.value)"
+                style="width:auto;min-width:90px;font-size:13px;padding:7px 10px">
+          <option value="7">7 jours</option>
+          <option value="15">15 jours</option>
+          <option value="30">30 jours</option>
+          <option value="45">45 jours</option>
+          <option value="60">60 jours</option>
+        </select>
+      </div>
+      <!-- Verrouiller -->
+      <button class="btn btn-g btn-full" onclick="lockAndShowPin()" style="min-height:46px">🔒 Verrouiller l'application</button>
     </div>
     <!-- DATA COUNT -->
     <div style="margin-top:16px;font-size:11px;color:var(--muted);text-align:center" id="data-count-txt"></div>
@@ -702,13 +803,132 @@ let materiels=DB.load('mat',[]);
 let clients=DB.load('clients',[]);
 let invCounter=DB.load('inv_counter',1);
 let privacyOn=false;
-let _invHtml='';
+let _invHtml='';let _invChId=null;let _invNum='';
 let _matPhoto=null;
 function sa(){DB.save('chv3',items);DB.save('mat',materiels);DB.save('clients',clients);DB.save('inv_counter',invCounter)}
 function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,6)}
 
+
+/* ════════════════ GUIDE PDF / HTML ════════════════ */
+function openGuide(){
+  const html=`<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Guide PIZOT Thomas</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Arial,sans-serif;font-size:11pt;color:#1a2e1e;padding:0}
+@page{size:A4;margin:15mm 14mm}
+@media print{.no-print{display:none}body{padding:0}}
+.cover{background:#1e3d28;color:white;padding:30mm 20mm;text-align:center;min-height:80mm;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10mm;page-break-after:always}
+.cover h1{font-size:28pt;font-weight:900;letter-spacing:2px;text-transform:uppercase}
+.cover h1 span{color:#f0c8a0}
+.cover p{font-size:12pt;color:rgba(255,255,255,.7);letter-spacing:3px;text-transform:uppercase}
+.cover .badge{background:rgba(217,117,53,.3);border:2px solid #d97535;border-radius:8px;padding:8px 18px;font-size:10pt;color:#f0c8a0;margin-top:5mm}
+.page{padding:10mm 14mm;page-break-inside:avoid}
+h2{font-size:14pt;font-weight:900;color:#1e3d28;text-transform:uppercase;letter-spacing:1px;padding:6px 10px;background:#eef4ef;border-left:4px solid #d97535;margin:6mm 0 4mm}
+h3{font-size:11pt;font-weight:700;color:#2d5438;margin:4mm 0 2mm}
+p,li{font-size:10pt;line-height:1.7;color:#1a2e1e}
+ul{padding-left:5mm}
+li{margin-bottom:2mm}
+.step{display:flex;gap:4mm;align-items:flex-start;margin-bottom:4mm;padding:3mm 4mm;background:#eef4ef;border-radius:5px}
+.step-num{background:#2d5438;color:white;width:7mm;height:7mm;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:9pt;flex-shrink:0;margin-top:1mm}
+.step-body strong{color:#2d5438}
+.arrow{color:#d97535;font-weight:900}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:4mm;margin:3mm 0}
+.feat{background:#eef4ef;border-radius:5px;padding:4mm;border-left:3px solid #7da87a}
+.feat strong{color:#2d5438}
+.warn{background:#fee2e2;border-left:4px solid #c0392b;padding:4mm 5mm;border-radius:0 5px 5px 0;margin:3mm 0}
+.warn strong{color:#c0392b}
+.tip{background:#e8f5e9;border-left:4px solid #6d9a70;padding:4mm 5mm;border-radius:0 5px 5px 0;margin:3mm 0}
+.print-btn{position:fixed;bottom:15px;right:15px;background:#d97535;color:white;border:none;padding:10px 20px;border-radius:22px;font-size:13px;font-weight:700;cursor:pointer;box-shadow:0 3px 12px rgba(0,0,0,.25);z-index:999}
+</style></head><body>
+<button class="print-btn no-print" onclick="window.print()">🖨️ Imprimer / PDF</button>
+<div class="cover">
+  <div style="font-size:48px">🌲</div>
+  <h1>PIZOT <span>Thomas</span></h1>
+  <p>Entretien Espace Vert</p>
+  <div class="badge">Guide d'utilisation — Outil de gestion terrain</div>
+  <div style="margin-top:8mm;font-size:9pt;color:rgba(255,255,255,.5)">📞 07 81 21 81 69 · CESU accepté · Crédit d'impôt -50%</div>
+</div>
+
+<div class="page">
+<h2>1. Accéder à l'outil sur smartphone</h2>
+<p style="margin-bottom:3mm">L'outil est hébergé à une adresse web permanente (GitHub Pages). En l'ajoutant à votre écran d'accueil, vous obtenez une icône qui s'ouvre comme une vraie application.</p>
+<div class="grid2">
+<div>
+  <h3>📱 iPhone (Safari)</h3>
+  <div class="step"><div class="step-num">1</div><div class="step-body">Ouvrez l'URL dans <strong>Safari</strong> (obligatoire)</div></div>
+  <div class="step"><div class="step-num">2</div><div class="step-body">Appuyez sur le bouton <strong>Partager ⬆️</strong> au bas de l'écran</div></div>
+  <div class="step"><div class="step-num">3</div><div class="step-body">Faites défiler <span class="arrow">→</span> <strong>Sur l'écran d'accueil</strong></div></div>
+  <div class="step"><div class="step-num">4</div><div class="step-body">Nommez et tapez <strong>Ajouter</strong></div></div>
+</div>
+<div>
+  <h3>🤖 Android (Chrome)</h3>
+  <div class="step"><div class="step-num">1</div><div class="step-body">Ouvrez l'URL dans <strong>Chrome</strong></div></div>
+  <div class="step"><div class="step-num">2</div><div class="step-body">Appuyez sur le menu <strong>⋮</strong> en haut à droite</div></div>
+  <div class="step"><div class="step-num">3</div><div class="step-body"><span class="arrow">→</span> <strong>Ajouter à l'écran d'accueil</strong></div></div>
+  <div class="step"><div class="step-num">4</div><div class="step-body">Confirmez en appuyant sur <strong>Ajouter</strong></div></div>
+</div>
+</div>
+
+<h2>2. Système de sauvegarde — IMPORTANT</h2>
+<div class="warn"><strong>⚠️ Vos données sont stockées dans ce navigateur.</strong> En cas de perte ou réinitialisation du téléphone, tout sera perdu sans sauvegarde.</div>
+<div style="text-align:center;padding:4mm 0;font-size:10pt">
+  📱 Téléphone (données actives) <span class="arrow">→</span> 📄 Fichier .json <span class="arrow">→</span> ☁️ iCloud / Google Drive / Email
+</div>
+<h3>Exporter une sauvegarde</h3>
+<div class="step"><div class="step-num">1</div><div class="step-body">Appuyez sur <strong>⚙️</strong> en haut à droite</div></div>
+<div class="step"><div class="step-num">2</div><div class="step-body">Bouton <strong>📥 Exporter mes données</strong> → un fichier .json se télécharge</div></div>
+<div class="step"><div class="step-num">3</div><div class="step-body">Envoyez ce fichier sur <strong>iCloud Drive / Google Drive / Email</strong></div></div>
+<div class="tip">💡 Fréquence recommandée : après chaque session de saisie importante, minimum 1 fois par semaine.</div>
+<h3>Restaurer ses données</h3>
+<div class="step"><div class="step-num">1</div><div class="step-body">⚙️ Paramètres <span class="arrow">→</span> <strong>📤 Restaurer depuis un fichier</strong></div></div>
+<div class="step"><div class="step-num">2</div><div class="step-body">Sélectionnez votre fichier .json de sauvegarde <span class="arrow">→</span> Confirmez</div></div>
+</div>
+
+<div class="page">
+<h2>3. Workflow — Du RDV au chantier réalisé</h2>
+<div class="step"><div class="step-num">1</div><div class="step-body"><strong>Créer un RDV</strong> dans l'Agenda ou l'onglet Chantiers (bouton + Planifier)<br>Choisir le type : Chantier / Devis / Réparation / Perso / Autre</div></div>
+<div class="step"><div class="step-num">2</div><div class="step-body">Le RDV apparaît dans <strong>Chantiers → Planifiés</strong> avec le délai en jours</div></div>
+<div class="step"><div class="step-num">3</div><div class="step-body">Le jour J, appuyez sur <strong>✏️</strong> pour saisir les détails du chantier<br>(heures, taux, matériels, paiement...)</div></div>
+<div class="step"><div class="step-num">4</div><div class="step-body">Après la saisie, le chantier passe dans <strong>Réalisés</strong> et le RDV est marqué converti</div></div>
+<div class="step"><div class="step-num">5</div><div class="step-body">Générez une <strong>🧾 Facture</strong> via le bouton ⋯ du chantier → Imprimer/PDF</div></div>
+<div class="step"><div class="step-num">6</div><div class="step-body">Marquez le chantier <strong>💶 Payé</strong> dès réception du règlement</div></div>
+
+<h2>4. Fonctionnalités principales</h2>
+<div class="grid2">
+<div class="feat"><strong>📅 Agenda</strong><br>Calendrier mensuel, RDV en couleur, À venir 7 jours, vue journée détaillée</div>
+<div class="feat"><strong>⛏ Chantiers</strong><br>Planifiés (RDV) et réalisés, filtres, collègue avec heures/taux</div>
+<div class="feat"><strong>👤 Clients</strong><br>Fiche client complète, historique automatique, autocomplétion adresse</div>
+<div class="feat"><strong>💶 Règlements</strong><br>Impayés, alerte J+30, relance SMS, récap par mode de paiement</div>
+<div class="feat"><strong>🗺️ Carte</strong><br>Localisation géographique des clients dans le Dashboard</div>
+<div class="feat"><strong>👁 Mode discret</strong><br>Masque tous les chiffres en 1 tap — utile devant un client</div>
+</div>
+
+<h2>5. Adresse intelligente</h2>
+<p>Lors de la saisie d'une adresse, l'outil utilise la <strong>Base Adresse Nationale</strong> (gouvernement français) pour proposer des adresses précises avec numéros de voie. Les coordonnées GPS sont sauvegardées automatiquement pour la carte.</p>
+<div class="tip">💡 Les adresses sauvegardées (⭐) s'affichent en premier dans les suggestions.</div>
+</div>
+</body></html>`;
+  const w=window.open('','_blank','width=850,height=1000');
+  w.document.write(html);w.document.close();
+}
+
+
+function saveRelanceDelay(v){
+  relanceDelay=parseInt(v)||30;
+  DB.save('relance_delay',relanceDelay);
+  toast('✅ Délai mis à jour : '+relanceDelay+'j');
+  renderRgl();
+}
+function initRelanceDelaySel(){
+  const sel=document.getElementById('relance-delay-sel');
+  if(sel){
+    const vals=['7','15','30','45','60'];
+    sel.value=vals.includes(String(relanceDelay))?String(relanceDelay):'30';
+  }
+}
 /* ════════════════ SHOW APP ════════════════ */
 function showApp(){
+  initRelanceDelaySel();
   document.getElementById('app-header').style.display='';
   document.getElementById('app-main').style.display='';
   document.getElementById('app-nav').style.removeProperty('display');
@@ -729,7 +949,7 @@ function toast(msg){const e=document.getElementById('toast');e.textContent=msg;e
 function togglePrivacy(){privacyOn=!privacyOn;document.body.classList.toggle('prv',privacyOn);document.getElementById('prv-btn').textContent=privacyOn?'🔒':'👁';toast(privacyOn?'🔒 Chiffres masqués':'👁 Chiffres visibles')}
 
 /* ════════════════ NAV ════════════════ */
-const BNM={agenda:'bn-agenda',ch:'bn-ch',rgl:'bn-rgl',mat:'bn-mat',dash:'bn-dash'};
+const BNM={agenda:'bn-agenda',ch:'bn-ch',clients:'bn-clients',rgl:'bn-rgl',mat:'bn-mat',dash:'bn-dash'};
 function goTab(id,btn){
   document.querySelectorAll('.tc').forEach(t=>t.classList.remove('active'));
   document.querySelectorAll('nav.topnav button, .bottom-nav button').forEach(b=>b.classList.remove('active'));
@@ -737,6 +957,7 @@ function goTab(id,btn){
   if(btn)btn.classList.add('active');
   const bn=document.getElementById(BNM[id]);if(bn)bn.classList.add('active');
   renderAll();
+  if(id==='dash'){setTimeout(renderMap,250);if(_collDetVisible)renderCollDet();}
 }
 
 /* ════════════════ FORMAT ════════════════ */
@@ -748,10 +969,10 @@ function ddays(s){return Math.floor((new Date()-new Date((s||'2000-01-01')+'T12:
 
 /* ════════════════ RDV TYPE ════════════════ */
 const TC={
-  pro:{icon:'💼',label:'Pro',dot:'dp',bc:'b-pro',cc:'rdv'},
+  pro:{icon:'⛏',label:'Chantier',dot:'dp',bc:'b-pro',cc:'rdv'},
   devis:{icon:'📋',label:'Devis',dot:'ddevis',bc:'b-devis',cc:'rdv'},
   perso:{icon:'👤',label:'Perso',dot:'dperso',bc:'b-perso',cc:'rdv-perso'},
-  intervention:{icon:'🔧',label:'Intervention',dot:'du',bc:'b-interv',cc:'rdv'},
+  intervention:{icon:'🔨',label:'Réparation',dot:'du',bc:'b-interv',cc:'rdv'},
   autre:{icon:'📌',label:'Autre',dot:'drdv',bc:'b-autre',cc:'rdv'}
 };
 function tcFor(t){return TC[t]||TC.pro}
@@ -764,26 +985,217 @@ function uDl(lid='dl-cl'){const el=document.getElementById(lid);if(el)el.innerHT
 function hCI(cid,aid){const nm=(document.getElementById(cid)||{}).value||'';const c=clients.find(x=>x.nom.toLowerCase()===nm.toLowerCase());const a=document.getElementById(aid);if(c&&c.adr&&a&&!a.value)a.value=c.adr}
 function uCollDl(){const cs=[...new Set(items.filter(c=>c.coll).map(c=>c.coll))].sort();const el=document.getElementById('dl-coll');if(el)el.innerHTML=cs.map(c=>`<option value="${c}">`).join('')}
 
-/* ════════════════ ADDRESS AUTOCOMPLETE ════════════════ */
+/* ════════════════ ADDRESS AUTOCOMPLETE — API Adresse BAN ════════════════ */
+// Stockage coordonnées par adresse sélectionnée
+const _ac={};   // label -> {lat,lon}
+let _pc=null;   // coords en attente lors du prochain save
+
 let adrT={};
 async function aS(inp,dId){
   const q=(inp.value||'').trim(),dr=document.getElementById(dId);
   clearTimeout(adrT[dId]);
-  if(!dr||q.length<3){if(dr)dr.style.display='none';return}
+  if(!dr||q.length<2){if(dr)dr.style.display='none';return}
   adrT[dId]=setTimeout(async()=>{
+    // ── Clients sauvegardés ──
     const saved=clients.filter(c=>c.adr&&c.adr.toLowerCase().includes(q.toLowerCase())).slice(0,3)
-      .map(c=>`<div class="addr-opt" onclick="pickA('${c.adr.replace(/'/g,"\\'")}','${dId}',event)"><span>⭐</span><span style="font-size:12px">${c.adr} <em style="color:var(--muted)">(${c.nom})</em></span></div>`).join('');
+      .map(c=>`<div class="addr-opt" onclick="pickA('${c.adr.replace(/'/g,"\'")}','${dId}',event)"><span class="addr-icon">⭐</span><div><div class="addr-text" style="font-weight:700">${c.adr}</div><div style="font-size:10px;color:var(--muted)">${c.nom}</div></div></div>`).join('');
     if(saved){dr.innerHTML=saved;dr.style.display='block'}
+    // ── API Adresse data.gouv.fr (BAN) ──
     try{
-      const r=await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(q)}&limit=5&countrycodes=fr&accept-language=fr`);
-      const data=await r.json();
-      dr.innerHTML=saved+data.slice(0,5).map(d=>`<div class="addr-opt" onclick="pickA('${d.display_name.replace(/'/g,"\\'")}','${dId}',event)"><span>📍</span><span style="font-size:12px">${d.display_name}</span></div>`).join('');
-      if(dr.innerHTML)dr.style.display='block';else dr.style.display='none';
-    }catch{}
-  },420);
+      const url=`https://api-adresse.data.gouv.fr/search/?q=${encodeURIComponent(q)}&limit=7&autocomplete=1`;
+      const r=await fetch(url);const data=await r.json();
+      const items=(data.features||[]).map(f=>{
+        const p=f.properties,geo=f.geometry.coordinates;
+        const lon=geo[0],lat=geo[1];
+        const label=p.label||'';
+        // Store coords indexed by label
+        _ac[label]={lat,lon};
+        // Score badge color
+        const score=p.score||0;
+        const sc=score>0.85?'var(--sage2)':score>0.6?'var(--orange)':'var(--muted)';
+        // Type icon
+        const typeIcon=p.type==='housenumber'?'🏠':p.type==='street'?'🛣️':p.type==='municipality'?'🏘️':'📍';
+        const sub=p.type==='housenumber'?`${p.street||''}, ${p.city||''} ${p.postcode||''}`.trim()
+                  :p.type==='street'?`${p.city||''} ${p.postcode||''}`.trim()
+                  :`${p.postcode||''} ${p.city||''}`.trim();
+        return`<div class="addr-opt" onclick="pickA('${label.replace(/'/g,"\'")}','${dId}',event)">
+          <span class="addr-icon">${typeIcon}</span>
+          <div style="flex:1;min-width:0">
+            <div class="addr-text" style="font-weight:700;font-size:13px">${label}</div>
+            <div style="font-size:10px;color:var(--muted);margin-top:1px">${sub}</div>
+          </div>
+          <div style="font-size:9px;font-weight:800;color:${sc};font-family:'Raleway',sans-serif;flex-shrink:0;margin-left:4px">${Math.round(score*100)}%</div>
+        </div>`;
+      }).join('');
+      dr.innerHTML=saved+items;
+      if(dr.innerHTML.includes('addr-opt'))dr.style.display='block';else dr.style.display='none';
+    }catch{/* API indisponible — clients sauvegardés uniquement */}
+  },320);
 }
-function pickA(a,dId,e){e&&e.stopPropagation();const dr=document.getElementById(dId);if(!dr)return;const w=dr.closest('.addr-wrap');if(w){const i=w.querySelector('input');if(i)i.value=a}dr.style.display='none'}
+function pickA(a,dId,e){
+  e&&e.stopPropagation();
+  const dr=document.getElementById(dId);if(!dr)return;
+  const w=dr.closest('.addr-wrap');
+  if(w){const i=w.querySelector('input');if(i)i.value=a}
+  dr.style.display='none';
+  // Mémoriser les coords pour le prochain save
+  if(_ac[a])_pc=_ac[a];
+}
 document.addEventListener('click',()=>document.querySelectorAll('.addr-drop').forEach(d=>d.style.display='none'));
+
+
+
+/* ════════════════ CLIENTS ENRICHED ════════════════ */
+function migrateCl(){
+  clients=clients.map(c=>({
+    id:c.id||uid(),nom:c.nom||'',prenom:c.prenom||'',
+    adr:c.adr||'',tel:c.tel||'',email:c.email||'',
+    note:c.note||'',coords:c.coords||null
+  }));
+  DB.save('clients',clients);
+}
+
+function fullName(c){return(c.prenom?c.prenom+' ':'')+c.nom}
+
+function renderClients(){
+  const q=(document.getElementById('client-search')?.value||'').toLowerCase();
+  const list=clients.filter(c=>!q||c.nom.toLowerCase().includes(q)||(c.prenom||'').toLowerCase().includes(q)||(c.tel||'').includes(q)||(c.adr||'').toLowerCase().includes(q));
+  const el=document.getElementById('clients-list');if(!el)return;
+  if(!list.length){el.innerHTML='<div class="empty"><div class="ei">👤</div><p>Aucun client — appuyez sur + Nouveau</p></div>';return}
+  list.sort((a,b)=>a.nom.localeCompare(b.nom));
+  let html='';
+  list.forEach(cl=>{
+    const fn=fullName(cl);
+    const acts=items.filter(c=>(c.cl||'').toLowerCase()===fn.toLowerCase()||(c.cl||'').toLowerCase()===cl.nom.toLowerCase());
+    const ca=acts.filter(c=>c.statut==='realise').reduce((s,c)=>s+(c.mt||0),0);
+    const nb=acts.filter(c=>c.statut==='realise').length;
+    const nrdv=acts.filter(c=>c.statut==='rdv'&&!c.conv).length;
+    const anyUnp=acts.some(c=>c.statut==='realise'&&!c.paye);
+    html+='<div class="chi" data-id="'+cl.id+'" onclick="openClientEdit(this.dataset.id)" style="cursor:pointer">'
+      +'<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">'
+      +'<div style="flex:1;min-width:0"><div class="chcl">👤 '+fn+'</div>'
+      +'<div class="chdt">'+(cl.adr||'Adresse non renseignée')+(cl.tel?' · 📞 '+cl.tel:'')+'</div></div>'
+      +'<div style="text-align:right;flex-shrink:0">'
+      +'<div class="mnt mntg mv" style="font-size:12px">'+fe(ca)+'</div>'
+      +'<div style="font-size:10px;color:var(--muted)">'+nb+' chantier'+(nb>1?'s':'')+(nrdv?' · '+nrdv+' RDV':'')+'</div>'
+      +'</div></div></div>';
+  });
+  el.innerHTML=html;
+}
+
+function openClientEdit(id){
+  const cl=id?clients.find(c=>c.id===id):null;
+  document.getElementById('cl-eid').value=id||'';
+  document.getElementById('mcl-title').textContent=id?'Fiche client':'Nouveau client';
+  document.getElementById('cl-nom').value=cl?.nom||'';
+  document.getElementById('cl-prenom').value=cl?.prenom||'';
+  document.getElementById('cl-adr').value=cl?.adr||'';
+  document.getElementById('cl-tel').value=cl?.tel||'';
+  document.getElementById('cl-email').value=cl?.email||'';
+  document.getElementById('cl-note').value=cl?.note||'';
+  const delBtn=document.getElementById('cl-del-btn');
+  if(delBtn)delBtn.style.display=id?'inline-flex':'none';
+  const histEl=document.getElementById('cl-history');
+  if(id&&cl){
+    const fn=fullName(cl);
+    const acts=items.filter(c=>(c.cl||'').toLowerCase()===fn.toLowerCase()||(c.cl||'').toLowerCase()===cl.nom.toLowerCase())
+      .sort((a,b)=>(b.date||'').localeCompare(a.date||'')).slice(0,15);
+    if(acts.length){
+      histEl.style.display='block';
+      let rows='';
+      acts.forEach(c=>{
+        if(c.statut==='rdv'){
+          const t=tcFor(c.rdvType||'pro');
+          rows+='<div class="tl-row"><div class="tl-dot" style="background:var(--blue)"></div>'
+            +'<div class="tl-content"><div class="tl-title">'+t.icon+' '+t.label+' - '+fd(c.date)+'</div>'
+            +'<div class="tl-sub">'+(c.com||'')+(c.adr?' · '+c.adr:'')+(c.conv?' · Converti':'')+'</div></div></div>';
+        }else{
+          const dff=ddays(c.date);
+          const isOverdueH=!c.paye&&dff>=relanceDelay;
+          let payBlock='';
+          if(c.paye){
+            payBlock='<div style="display:inline-flex;align-items:center;gap:4px;background:rgba(109,154,112,.15);'
+              +'color:var(--sage2);border-radius:5px;padding:2px 7px;font-size:10px;font-weight:800">'
+              +'✅ Payé'+(c.dp?' le '+c.dp.split('-').reverse().join('/'):'')
+              +(c.mp?' · '+c.mp:'')+'</div>';
+          }else if(isOverdueH){
+            payBlock='<div style="display:inline-flex;align-items:center;gap:4px;background:var(--red-pale);'
+              +'color:var(--red);border-radius:5px;padding:2px 7px;font-size:10px;font-weight:800">'
+              +'⚠️ Impayé J+'+dff+'</div>';
+          }else{
+            payBlock='<div style="display:inline-flex;align-items:center;gap:4px;background:var(--orange-pale);'
+              +'color:var(--orange2);border-radius:5px;padding:2px 7px;font-size:10px;font-weight:800">'
+              +'⏳ En attente J+'+dff+'</div>';
+          }
+          rows+='<div class="tl-row" style="align-items:center"><div class="tl-dot" style="background:'+(c.paye?'var(--sage2)':isOverdueH?'var(--red)':'var(--orange)')+'"></div>'
+            +'<div class="tl-content" style="flex:1">'
+            +'<div class="tl-title" style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">'
+            +'<span>Chantier — '+fd(c.date)+'</span> '+payBlock+'</div>'
+            +'<div class="tl-sub">'+(c.desc||'')+(c.mt?' · <strong class=\"mv\">'+fe(c.mt)+'</strong>':'')+(c.coll?' · 👷 '+c.coll:'')+(c.h?' · '+c.h+'h':'')+'</div></div>'+'</div></div>'
+            +'<button data-cid="'+c.id+'" onclick="genInvFromClient(this.dataset.cid)" title="Generer facture"'
+            +' style="background:var(--orange-pale);color:var(--orange2);border:1.5px solid var(--orange-lt);border-radius:8px;padding:4px 8px;cursor:pointer;font-size:13px;flex-shrink:0;min-height:32px;margin-left:6px">🧾</button>'
+            +'</div>';
+        }
+      });
+      document.getElementById('cl-history-list').innerHTML=rows;
+    }else{histEl.style.display='none'}
+  }else{histEl.style.display='none'}
+  openM('mov-client');
+}
+
+function saveCl(){
+  const nom=(document.getElementById('cl-nom').value||'').trim();
+  if(!nom){toast('⚠️ Nom requis');return}
+  const eid=document.getElementById('cl-eid').value;
+  const adr=document.getElementById('cl-adr').value;
+  const data={nom,prenom:document.getElementById('cl-prenom').value.trim(),adr,
+    tel:document.getElementById('cl-tel').value.trim(),email:document.getElementById('cl-email').value.trim(),
+    note:document.getElementById('cl-note').value,coords:_pc||null};
+  _pc=null;
+  if(eid){const i=clients.findIndex(c=>c.id===eid);if(i>=0)clients[i]={...clients[i],...data}}
+  else clients.push({id:uid(),...data});
+  DB.save('clients',clients);uDlAll();
+  closeM('mov-client');renderClients();toast('✅ Client enregistré !');
+}
+
+function delClientById(){
+  const id=document.getElementById('cl-eid').value;if(!id)return;
+  if(!confirm('Supprimer ce client ?'))return;
+  clients=clients.filter(c=>c.id!==id);
+  DB.save('clients',clients);renderClients();closeM('mov-client');toast('🗑️ Supprimé');
+}
+
+function uDlAll(){
+  // Update all datalists with full names
+  ['dl-cl','dl-cl-rdv','dl-cl-rech'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el)el.innerHTML=clients.map(c=>`<option value="${fullName(c)}">`).join('');
+  });
+}
+
+// Override old uDl to use uDlAll
+function uDl(lid){uDlAll()}
+
+/* ─── Extended hCI: fill address + tel/email hint ─── */
+function hCI(cid,aid){
+  const nm=(document.getElementById(cid)||{}).value||'';
+  const c=clients.find(x=>fullName(x).toLowerCase()===nm.toLowerCase()||x.nom.toLowerCase()===nm.toLowerCase());
+  const a=document.getElementById(aid);
+  if(c&&c.adr&&a&&!a.value){a.value=c.adr}
+  if(c&&c.coords)_pc=c.coords;
+}
+
+/* ─── Collègue H/Taux ─── */
+function toggleCollDet(){
+  const v=document.getElementById('ch-coll').value.trim();
+  const det=document.getElementById('fg-coll-det');if(det)det.style.display=v?'block':'none';
+}
+function calcCollMt(){
+  const h=parseFloat(document.getElementById('ch-coll-h').value)||0;
+  const tx=parseFloat(document.getElementById('ch-coll-tx').value)||0;
+  const mt=document.getElementById('ch-coll-mt');
+  if(mt&&h>0&&tx>0)mt.value=(h*tx).toFixed(2);
+}
 
 /* ════════════════ HEADER KPI ════════════════ */
 function uHdr(){
@@ -878,15 +1290,28 @@ function showChActs(id){
 function showRdvActs(id){
   const c=items.find(x=>x.id===id);if(!c)return;
   const t=tcFor(c.rdvType||'pro');
+  const isCh=['pro','intervention'].includes(c.rdvType||'pro');
   document.getElementById('action-title').textContent=t.icon+' '+c.cl+' · '+fd(c.date);
-  document.getElementById('action-btns').innerHTML=`
-    <button class="action-btn success" onclick="convRdv('${id}');closeM('mov-actions')"><div class="ab-icon">⛏</div><div><div class="ab-label">Réaliser → Convertir en chantier</div><div class="ab-sub">Crée un chantier depuis ce RDV</div></div></button>
-    <button class="action-btn" onclick="editRdv('${id}');closeM('mov-actions')"><div class="ab-icon">✏️</div><div><div class="ab-label">Modifier le RDV</div></div></button>
-    <button class="action-btn danger" onclick="if(confirm('Supprimer ce RDV ?')){delRdv('${id}');closeM('mov-actions')}"><div class="ab-icon">🗑️</div><div><div class="ab-label">Supprimer</div></div></button>`;
-  openM('mov-actions');
+  const v=document.getElementById('action-btns');
+  let html='';
+  if(isCh){
+    html+='<button class="action-btn success" data-id="'+id+'" onclick="rdvActValidate(this.dataset.id)">'
+      +'<div class="ab-icon">✅</div><div><div class="ab-label">Valider — Saisir le chantier</div>'
+      +'<div class="ab-sub">Ouvre le formulaire pré-rempli</div></div></button>';
+  }
+  html+='<button class="action-btn" data-id="'+id+'" onclick="rdvActEdit(this.dataset.id)">'
+    +'<div class="ab-icon">✏️</div><div><div class="ab-label">Modifier le RDV</div></div></button>';
+  html+='<button class="action-btn danger" data-id="'+id+'" onclick="rdvActDel(this.dataset.id)">'
+    +'<div class="ab-icon">🗑️</div><div><div class="ab-label">Supprimer</div></div></button>';
+  v.innerHTML=html;openM('mov-actions');
 }
+function rdvActValidate(id){closeM('mov-actions');setTimeout(()=>convRdv(id),100)}
+function rdvActEdit(id){closeM('mov-actions');setTimeout(()=>editRdv(id),100)}
+function rdvActDel(id){closeM('mov-actions');setTimeout(()=>delPlannedRdv(id),100)}
 
 /* ════════════════ CHANTIER CRUD ════════════════ */
+let _rdvConvertId=null;
+let relanceDelay=DB.load('relance_delay',30);
 function openCh(date,fromRdv){
   document.getElementById('ch-eid').value='';document.getElementById('mch-title').textContent=fromRdv?'Convertir en chantier':'Nouveau chantier';
   document.getElementById('ch-date').value=date||new Date().toISOString().split('T')[0];document.getElementById('ch-heure').value='08:00';
@@ -905,6 +1330,10 @@ function editCh(id){
   document.getElementById('ch-paye').value=c.paye?'true':'false';document.getElementById('ch-dp').value=c.dp||'';
   const mpv=c.mpLibre?'Autre':c.mp||'';document.getElementById('ch-mp').value=mpv;document.getElementById('ch-mp-libre').value=c.mpLibre||'';document.getElementById('ch-mp-libre').style.display=c.mpLibre?'block':'none';
   document.getElementById('ch-notes').value=c.notes||'';document.getElementById('ch-adr').value=c.adr||'';document.getElementById('ch-coll').value=c.coll||'';
+  document.getElementById('ch-coll-h').value=c.collH||'';
+  document.getElementById('ch-coll-tx').value=c.collTx||'';
+  document.getElementById('ch-coll-mt').value=c.collMt||'';
+  if(c.coll){const det=document.getElementById('fg-coll-det');if(det)det.style.display='block';}
   const rm={};(c.matsRep||[]).forEach(r=>rm[r.id]=r.pct);renderMC(c.mats||[],rm);uDl();uDl('dl-cl');uCollDl();togglePF();openM('mov-ch');
 }
 function renderMC(sel,rm){
@@ -918,11 +1347,76 @@ function uMR(im){
   const rd=document.getElementById('ch-rep');const rr=document.getElementById('rep-rows');
   if(ck.length<2){rd.style.display='none';return}
   rd.style.display='block';const mp=im||window._irm||{};const dp=Math.round(100/ck.length);
-  rr.innerHTML=ck.map(cb=>{const m=materiels.find(x=>x.id===cb.value);const pct=mp[cb.value]!==undefined?mp[cb.value]:dp;const th=m?.photo?`<img src="${m.photo}" style="width:24px;height:24px;border-radius:5px;object-fit:cover;flex-shrink:0">`:`<span style="font-size:16px">🔧</span>`;return`<div class="rep-row"><span style="display:flex;align-items:center;gap:6px">${th}${m?.nom||cb.value}</span><input type="number" id="rep-${cb.value}" value="${pct}" min="0" max="100" oninput="uRT()">%<div class="pb" style="width:56px;margin:0;height:4px"><div class="pbf pbg" id="repb-${cb.value}" style="width:${pct}%"></div></div></div>`}).join('');
+  rr.innerHTML=ck.map(cb=>{
+    const m=materiels.find(x=>x.id===cb.value);
+    const pct=mp[cb.value]!==undefined?mp[cb.value]:dp;
+    const ph=m?.photo?`<img src="${m.photo}" style="width:22px;height:22px;border-radius:4px;object-fit:cover;flex-shrink:0">`:'🔧';
+        return`<div class="rep-row">
+      <div class="rep-name">${ph}<span>${m?.nom||cb.value}</span></div>
+      <input type="range" class="rep-slider" id="rslide-${cb.value}" min="0" max="100" value="${pct}"
+             oninput="uSlider('${cb.value}',this.value)" style="--val:${pct}%">
+      <span class="rep-pct" id="rep-disp-${cb.value}">${pct}%</span>
+      <input type="hidden" id="rep-${cb.value}" value="${pct}">
+    </div>`;
+  }).join('');
   window._irm={};uRT();
 }
-function uRT(){const is=[...document.querySelectorAll('[id^="rep-"]:not(#rep-warn):not(#rep-rows)')];let t=0;is.forEach(i=>{const v=parseInt(i.value)||0;t+=v;const b=document.getElementById('repb-'+i.id.slice(4));if(b)b.style.width=Math.min(100,v)+'%'});const w=document.getElementById('rep-warn');w.textContent=t===100?'✓ 100%':'⚠ '+t+'% ≠ 100%';w.style.color=t===100?'var(--sage2)':'var(--orange)'}
-function autoDistrib(){const ck=[...document.querySelectorAll('#ch-mats input:checked')];if(!ck.length)return;const p=Math.round(100/ck.length);let r=100;ck.forEach((cb,i)=>{const f=document.getElementById('rep-'+cb.value);if(!f)return;const v=i===ck.length-1?r:p;f.value=v;r-=p});uRT()}
+
+/* ─── Linked sliders ─── */
+function _setRep(id,v){
+  v=Math.max(0,Math.min(100,Math.round(v)));
+  const hid=document.getElementById('rep-'+id);if(hid)hid.value=v;
+  const disp=document.getElementById('rep-disp-'+id);if(disp)disp.textContent=v+'%';
+  const rng=document.getElementById('rslide-'+id);if(rng){rng.value=v;rng.style.setProperty('--val',v+'%')}
+}
+function uSlider(cId,rawVal){
+  const v=Math.max(0,Math.min(100,parseInt(rawVal)||0));
+  _setRep(cId,v);
+  const ck=[...document.querySelectorAll('#ch-mats input:checked')];
+  const others=ck.filter(cb=>cb.value!==cId);
+  if(!others.length)return;
+  const rem=100-v;
+  const oSum=others.reduce((s,cb)=>s+(parseInt(document.getElementById('rep-'+cb.value)?.value)||0),0);
+  if(oSum<=0){
+    const each=Math.floor(rem/others.length);let left=rem;
+    others.forEach((cb,i)=>{const nv=i===others.length-1?left:each;_setRep(cb.value,Math.max(0,nv));left-=each});
+  }else{
+    let assigned=0;
+    others.forEach((cb,i)=>{
+      const cur=parseInt(document.getElementById('rep-'+cb.value)?.value)||0;
+      const nv=i===others.length-1?rem-assigned:Math.round(cur/oSum*rem);
+      const cv=Math.max(0,nv);_setRep(cb.value,cv);assigned+=cv;
+    });
+    // Correct rounding
+    const tot=ck.reduce((s,cb)=>s+(parseInt(document.getElementById('rep-'+cb.value)?.value)||0),0);
+    if(tot!==100&&others.length>0){
+      const last=others[others.length-1];
+      const lv=(parseInt(document.getElementById('rep-'+last.value)?.value)||0)+(100-tot);
+      _setRep(last.value,Math.max(0,lv));
+    }
+  }
+  uRT();
+}
+/* ─── Clear day ─── */
+function clearSelDay(){
+  selDate=null;
+  document.getElementById('day-card').style.display='none';
+  document.querySelectorAll('.cday').forEach(d=>d.classList.remove('selected'));
+}
+
+function uRT(){
+  const ck=[...document.querySelectorAll('#ch-mats input:checked')];
+  let t=ck.reduce((s,cb)=>s+(parseInt(document.getElementById('rep-'+cb.value)?.value)||0),0);
+  const w=document.getElementById('rep-warn');
+  if(w){w.textContent=t===100?'✓ 100%':'⚠ '+t+'% ≠ 100%';w.style.color=t===100?'var(--sage2)':'var(--orange)'}
+}
+function autoDistrib(){
+  const ck=[...document.querySelectorAll('#ch-mats input:checked')];
+  if(!ck.length)return;
+  const p=Math.round(100/ck.length);let r=100;
+  ck.forEach((cb,i)=>{const v=i===ck.length-1?r:p;_setRep(cb.value,Math.max(0,v));r-=p});
+  uRT();
+}
 function getRepV(){const ck=[...document.querySelectorAll('#ch-mats input:checked')];if(!ck.length)return[];if(ck.length===1)return[{id:ck[0].value,pct:100}];return ck.map(cb=>{const f=document.getElementById('rep-'+cb.value);return{id:cb.value,pct:parseInt(f?.value||0)}})}
 function calcMnt(){const h=parseFloat(document.getElementById('ch-h').value)||0,t=parseFloat(document.getElementById('ch-tx').value)||0;if(h>0&&t>0)document.getElementById('ch-mt').value=(h*t).toFixed(2)}
 function togglePF(){const p=document.getElementById('ch-paye').value==='true';document.getElementById('fg-dp').style.display=p?'':'none';document.getElementById('fg-mp').style.display=p?'':'none'}
@@ -936,15 +1430,49 @@ function saveCh(){
   const adr=document.getElementById('ch-adr').value,mpR=document.getElementById('ch-mp').value;
   const mpL=mpR==='Autre'?document.getElementById('ch-mp-libre').value:'',mp=mpL||mpR;
   saveClient(cl,adr);
-  const data={statut:'realise',date,heure:document.getElementById('ch-heure').value,cl,h,tx,mt,pv:document.getElementById('ch-pv').value||null,desc:document.getElementById('ch-desc').value,mats,matsRep:getRepV(),paye,dp:paye?(document.getElementById('ch-dp').value||date):null,mp,mpLibre:mpL,notes:document.getElementById('ch-notes').value,adr,coll:document.getElementById('ch-coll').value.trim()};
+  const coords=_pc||null;_pc=null;
+  const collH=parseFloat(document.getElementById('ch-coll-h')?.value)||0;
+  const collTx=parseFloat(document.getElementById('ch-coll-tx')?.value)||0;
+  const collMt=collH&&collTx?collH*collTx:0;
+  const data={statut:'realise',date,heure:document.getElementById('ch-heure').value,cl,h,tx,mt,pv:document.getElementById('ch-pv').value||null,desc:document.getElementById('ch-desc').value,mats,matsRep:getRepV(),paye,dp:paye?(document.getElementById('ch-dp').value||date):null,mp,mpLibre:mpL,notes:document.getElementById('ch-notes').value,adr,coords,coll:document.getElementById('ch-coll').value.trim(),collH,collTx,collMt};
   const eid=document.getElementById('ch-eid').value;
   if(eid){const i=items.findIndex(x=>x.id===eid);if(i>=0)items[i]={...data,id:eid}}else items.push({...data,id:uid()});
+  // Marquer le RDV source comme converti
+  if(_rdvConvertId){const rdv=items.find(x=>x.id===_rdvConvertId);if(rdv)rdv.conv=true;_rdvConvertId=null;}
   sa();closeM('mov-ch');renderAll();toast('✅ Chantier enregistré !');
 }
 function delCh(id){items=items.filter(c=>c.id!==id);sa();renderAll();toast('🗑️ Supprimé')}
 function markPaid(id){const c=items.find(x=>x.id===id);if(!c)return;c.paye=true;c.dp=new Date().toISOString().split('T')[0];sa();renderAll();toast('💶 Paiement enregistré !')}
 
 /* ════════════════ CHANTIERS TABLE ════════════════ */
+function renderPlanned(){
+  const tod=new Date().toISOString().split('T')[0];
+  const planned=items.filter(c=>c.statut==='rdv'&&!c.conv).sort((a,b)=>a.date.localeCompare(b.date));
+  const el=document.getElementById('planned-body');if(!el)return;
+  if(!planned.length){el.innerHTML='<div class="empty" style="padding:10px"><p>Aucun chantier planifie — appuyez sur + Planifier</p></div>';return}
+  let html='';
+  planned.forEach(c=>{
+    const t=tcFor(c.rdvType||'pro');
+    const isPast=c.date<tod,isToday=c.date===tod;
+    const diff=Math.ceil((new Date(c.date+'T12:00:00')-new Date())/86400000);
+    let badge='';
+    if(isPast)badge='<span class="badge bu">Retard J+'+Math.abs(diff)+'</span>';
+    else if(isToday)badge='<span class="badge" style="background:var(--orange-pale);color:var(--orange2)">Auj.</span>';
+    else badge='<span class="badge bc">'+diff+'j</span>';
+    const dStr=(c.date||'').split('-').reverse().join('/');
+    const sub=[c.heure,c.adr?'📍 '+c.adr.substring(0,28):'',c.com?c.com.substring(0,28):''].filter(Boolean).join(' · ');
+    html+='<div style="display:flex;align-items:center;gap:8px;padding:9px 0;border-bottom:1px solid var(--bg)">'
+      +'<div style="flex:1;min-width:0">'
+      +'<div style="font-weight:700;font-size:14px;color:var(--dark)">' +t.icon+' '+c.cl+'</div>'
+      +'<div style="font-size:12px;color:var(--muted);margin-top:2px">'+dStr+(sub?' · '+sub:'')+'</div>'
+      +'</div>'
+      +badge
+      +((['pro','intervention'].includes(c.rdvType||'pro'))?'<button class="btn btn-p btn-sm" data-id="'+c.id+'" onclick="convRdv(this.dataset.id)"' +' style="min-height:34px;padding:0 10px;font-size:11px;letter-spacing:.3px">✅ Valider</button>':'<button class="btn btn-g btn-sm" data-id="'+c.id+'" onclick="editRdv(this.dataset.id)"' +' style="min-height:34px;padding:0 10px;font-size:11px">✏️</button>')+'<button class="btn btn-sm" data-cn="'+encodeURIComponent(c.cl||'')+'" onclick="showQuickHist(this.dataset.cn)" title="Historique client" style="background:var(--blue-pale);color:var(--blue2);border:1.5px solid #93c5fd;border-radius:8px;padding:0;min-width:34px;font-size:16px;min-height:34px;cursor:pointer">👤</button>'+'<button class="btn btn-d btn-sm" data-id="'+c.id+'" onclick="delPlannedRdv(this.dataset.id)" style="min-width:34px;font-size:16px;padding:0;min-height:34px">🗑️</button>'
+      +'</div>';
+  });
+  el.innerHTML=html;
+}
+
 function renderChT(){
   const q=(document.getElementById('sch')?.value||'').toLowerCase(),fp=document.getElementById('flt')?.value||'',fy=document.getElementById('flt-year')?.value||'';
   const yrs=[...new Set(items.filter(c=>c.statut==='realise').map(c=>(c.date||'').substr(0,4)).filter(Boolean))].sort().reverse();
@@ -974,12 +1502,24 @@ function saveRdv(){
   const date=document.getElementById('rdv-date').value,cl=(document.getElementById('rdv-cl').value||'').trim();
   if(!date||!cl){toast('⚠️ Date et client requis');return}
   const adr=document.getElementById('rdv-adr').value;saveClient(cl,adr);
-  const data={statut:'rdv',rdvType:selRT,date,heure:document.getElementById('rdv-heure').value,cl,adr,com:document.getElementById('rdv-com').value,conv:false};
+  const coords=_pc||null;_pc=null;
+  const data={statut:'rdv',rdvType:selRT,date,heure:document.getElementById('rdv-heure').value,cl,adr,coords,com:document.getElementById('rdv-com').value,conv:false};
   const eid=document.getElementById('rdv-eid').value;
   if(eid){const i=items.findIndex(x=>x.id===eid);if(i>=0)items[i]={...data,id:eid}}else items.push({...data,id:uid()});
   sa();closeM('mov-rdv');renderAll();toast('📋 RDV enregistré !');
 }
-function convRdv(id){const rdv=items.find(x=>x.id===id);if(!rdv)return;rdv.conv=true;sa();openCh(rdv.date,rdv);renderAll()}
+function convRdv(id){
+  const rdv=items.find(x=>x.id===id);if(!rdv)return;
+  _rdvConvertId=id;
+  openCh(rdv.date,rdv);
+}
+
+function delPlannedRdv(id){
+  if(!confirm('Supprimer ce RDV ?'))return;
+  items=items.filter(c=>c.id!==id);
+  sa();renderAll();toast('🗑️ RDV supprimé');
+  closeM('mov-actions');
+}
 function delRdv(id){items=items.filter(c=>c.id!==id);sa();renderAll();toast('🗑️ Supprimé')}
 
 /* ════════════════ RÈGLEMENTS ════════════════ */
@@ -992,7 +1532,7 @@ function renderRgl(){
   if(sort==='da')unp.sort((a,b)=>(a.date||'').localeCompare(b.date||''));else if(sort==='dd')unp.sort((a,b)=>(b.date||'').localeCompare(a.date||''));else unp.sort((a,b)=>(b.mt||0)-(a.mt||0));
   const rglEl=document.getElementById('rgl-body');
   rglEl.innerHTML=!unp.length?'<div class="empty"><div class="ei">🎉</div><p style="font-weight:800;color:var(--sage2)">Aucun impayé !</p></div>':unp.map(c=>{
-    const dff=ddays(c.date);const is30=dff>=30;
+    const dff=ddays(c.date);const is30=dff>=relanceDelay;
     if(is30)return`<div class="alert-30"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px"><div><strong>⚠️ J+${dff} — ${c.cl}</strong><br><span style="font-size:12px">${fd(c.date)} · <span class="mv">${fe(c.mt)}</span> · ${c.desc||'—'}</span></div><div style="display:flex;flex-direction:column;gap:5px"><button class="btn btn-o btn-sm" onclick="markPaid('${c.id}')">💶 Payé</button><button class="btn btn-sm" style="background:var(--red-pale);color:var(--red);border:none;border-radius:9px;padding:5px 11px;font-family:'Raleway',sans-serif;font-weight:800;font-size:10px;cursor:pointer;text-transform:uppercase;min-height:34px" onclick="openRelance('${c.id}')">📨 Relance</button></div></div></div>`;
     return`<div class="chi u" style="cursor:default"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px"><div><div class="chcl">${c.cl}</div><div class="chdt">${fd(c.date)} · J+${dff}</div></div><div style="display:flex;align-items:center;gap:6px"><div class="mnt mnto mv">${fe(c.mt)}</div><button class="btn btn-o btn-sm" onclick="markPaid('${c.id}')">💶</button><button class="btn btn-g btn-sm" onclick="showChActs('${c.id}')">⋯</button></div></div></div>`;
   }).join('');
@@ -1011,13 +1551,81 @@ function openRelance(id){
   document.getElementById('relance-txt').value=`Bonjour M/Mme ${c.cl},\n\nSuite à mon intervention du ${fd(c.date)} pour "${c.desc||'travaux d\'entretien espace vert'}" (durée : ${c.h}h de travail), le règlement de ${fe(c.mt)} est toujours en attente après ${dff} jours.\n\nPourriez-vous me faire part de vos modalités de règlement (CESU, espèces, chèque, virement) ?\n\nJe reste à votre disposition.\n\nCordialement,\nThomas PIZOT — Entretien Espace Vert\n📞 07 81 21 81 69`;
   openM('mov-relance');
 }
+
+function mailRelance(){
+  const txt=document.getElementById('relance-txt').value;
+  const link='mailto:?subject='+encodeURIComponent('Relance reglement - Entretien Espace Vert')+'&body='+encodeURIComponent(txt);
+  window.location.href=link;
+  closeM('mov-relance');
+}
 function copyRelance(){navigator.clipboard.writeText(document.getElementById('relance-txt').value).then(()=>toast('📋 Copié !'));closeM('mov-relance')}
-function smsR(){window.open('https://wa.me/?text='+encodeURIComponent(document.getElementById('relance-txt').value),'_blank');closeM('mov-relance')}
+function smsR(){const msg=document.getElementById('relance-txt').value;window.open('sms:?&body='+encodeURIComponent(msg));closeM('mov-relance')}
+
+
+/* ════════ MAIL FACTURE ════════ */
+function mailInvoice(){
+  const c=items.find(x=>x.id===_invChId);if(!c)return;
+  const fn=c.cl||'';
+  const cli=clients.find(x=>fullName(x).toLowerCase()===fn.toLowerCase()||x.nom.toLowerCase()===fn.toLowerCase());
+  const toEmail=cli?.email||'';
+  const dff=ddays(c.date);
+  const isOverdue=dff>=relanceDelay&&!c.paye;
+  const dateStr=(c.date||'').split('-').reverse().join('/');
+  const mts=new Intl.NumberFormat('fr-FR',{style:'currency',currency:'EUR',maximumFractionDigits:0}).format(c.mt||0);
+  const desc=c.desc||'entretien espace vert';
+  const sign='\n\nCordialement,\nThomas PIZOT - Entretien Espace Vert\n07 81 21 81 69';
+
+  let subject,body;
+
+  if(c.paye){
+    /* ── CAS 1 : FACTURE ACQUITTÉE (chantier payé) ── */
+    subject='Facture acquittee '+_invNum+' - Entretien Espace Vert PIZOT Thomas';
+    body='Bonjour M/Mme '+c.cl+','
+      +'\n\nVeuillez trouver en piece jointe la facture '+_invNum+' ACQUITTEE'
+      +' concernant mon intervention du '+dateStr+' : '+desc+' ('+c.h+'h).'
+      +'\n\nMontant regle : '+mts
+      +'\n\nCette facture est entierement acquittee - aucun reglement supplementaire n est attendu.'
+      +'\n\nJe vous remercie de votre confiance et reste a votre disposition pour tout futur entretien.'
+      +sign;
+
+  }else if(!isOverdue){
+    /* ── CAS 2 : NON PAYÉ dans les délais → classique + remerciement ── */
+    subject='Facture '+_invNum+' - Entretien Espace Vert PIZOT Thomas';
+    body='Bonjour M/Mme '+c.cl+','
+      +'\n\nVeuillez trouver en piece jointe la facture '+_invNum
+      +' concernant mon intervention du '+dateStr+' : '+desc+' ('+c.h+'h - '+mts+').'
+      +'\n\nModes de reglement acceptes : CESU, especes, virement.'
+      +'\nA regler a reception de la presente facture.'
+      +'\n\nJe vous remercie de votre confiance.'
+      +sign;
+
+  }else{
+    /* ── CAS 3 : NON PAYÉ + ALERTE RELANCE → classique + message relance ── */
+    subject='Relance - Facture '+_invNum+' - Entretien Espace Vert';
+    body='Bonjour M/Mme '+c.cl+','
+      +'\n\nSauf erreur de ma part, la facture '+_invNum+' du '+dateStr
+      +' pour "'+desc+'" ('+c.h+'h - '+mts+')'
+      +' est toujours en attente de reglement apres '+dff+' jours.'
+      +'\n\nJe vous remercie de bien vouloir regulariser cette situation'
+      +' (CESU, especes, virement).'
+      +'\n\nJe reste bien entendu disponible pour tout renseignement.'
+      +sign;
+  }
+
+  window.location.href='mailto:'+toEmail+'?subject='+encodeURIComponent(subject)+'&body='+encodeURIComponent(body);
+}
+
 
 /* ════════════════ INVOICE ════════════════ */
+
+function genInvFromClient(id){
+  closeM('mov-client');
+  setTimeout(()=>{genInvoice(id);openM('mov-facture')},180);
+}
 function genInvoice(id){
+  _invChId=id;
   const c=items.find(x=>x.id===id);if(!c)return;
-  const num='FAC-'+new Date().getFullYear()+'-'+String(invCounter).padStart(3,'0');
+  const num='FAC-'+new Date().getFullYear()+'-'+String(invCounter).padStart(3,'0');_invNum=num;
   invCounter++;DB.save('inv_counter',invCounter);
   const today=fd(new Date().toISOString().split('T')[0]);
   const html=`<div class="inv-preview">
@@ -1025,7 +1633,7 @@ function genInvoice(id){
       <div>
         <div style="font-family:'Raleway',sans-serif;font-weight:900;font-size:16px;color:var(--dark)">PIZOT Thomas</div>
         <div style="font-size:12px;color:var(--muted);margin-top:2px">Entretien Espace Vert</div>
-        <div style="font-size:12px;color:var(--muted)">Auto-entrepreneur</div>
+        <div style="font-size:12px;color:var(--muted)">Thomas PIZOT</div>
         <div style="font-size:12px;color:var(--muted)">📞 07 81 21 81 69</div>
       </div>
       <div style="text-align:right">
@@ -1056,7 +1664,7 @@ function genInvoice(id){
       <div class="inv-total-val mv">${fe(c.mt)}</div>
     </div>
     <div style="margin-top:14px;padding-top:10px;border-top:1px solid var(--border);font-size:11px;color:var(--muted);line-height:1.7">
-      TVA non applicable — Article 293B du CGI (auto-entrepreneur)<br>
+      TVA non applicable — Article 293B du CGI<br>
       Modes de paiement acceptés : CESU, espèces, chèque, virement<br>
       À régler à réception de la présente facture
     </div>
@@ -1066,7 +1674,7 @@ function genInvoice(id){
   openM('mov-facture');
 }
 function genPrintHtml(c,num,today){
-  return`<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"><title>Facture ${num}</title><style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:Arial,sans-serif;font-size:12pt;padding:20mm;color:#1a2e1e}.header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20mm;padding-bottom:10mm;border-bottom:3px solid #2d5438}.brand{font-size:18pt;font-weight:900;color:#2d5438;letter-spacing:1px;text-transform:uppercase}.inv-num{font-size:28pt;font-weight:900;color:#2d5438;text-align:right}.client-box{background:#eef4ef;padding:10mm;border-radius:4mm;margin-bottom:12mm}.section-label{font-size:8pt;font-weight:bold;text-transform:uppercase;letter-spacing:1px;color:#5c7a61;margin-bottom:3mm}table{width:100%;border-collapse:collapse;margin:8mm 0}th{background:#2d5438;color:white;padding:3mm 4mm;text-align:left;font-size:9pt}td{padding:3mm 4mm;border-bottom:1px solid #eee}.total-row{border-top:3px solid #2d5438;font-weight:900;font-size:14pt}.total-label{text-align:right}.footer{margin-top:12mm;padding-top:6mm;border-top:1px solid #c5d9c8;font-size:8pt;color:#5c7a61;line-height:1.7}@media print{body{padding:15mm}}</style></head><body><div class="header"><div><div class="brand">PIZOT Thomas</div><div style="font-size:10pt;color:#5c7a61">Entretien Espace Vert · Auto-entrepreneur</div><div style="font-size:10pt;color:#5c7a61">📞 07 81 21 81 69</div></div><div style="text-align:right"><div class="inv-num">FACTURE</div><div style="font-size:13pt;font-weight:700;color:#2d5438">${num}</div><div style="font-size:10pt;color:#5c7a61">Émise le ${today}</div><div style="font-size:10pt;color:#5c7a61">Travaux du ${fd(c.date)}</div></div></div><div class="client-box"><div class="section-label">Destinataire</div><div style="font-size:14pt;font-weight:700">${c.cl}</div>${c.adr?`<div style="font-size:10pt;color:#5c7a61">${c.adr}</div>`:''}</div><table><thead><tr><th>Description des prestations</th><th>Durée</th><th>Taux horaire</th><th>Montant</th></tr></thead><tbody><tr><td>${c.desc||'Entretien espace vert'}</td><td>${c.h}h</td><td>${c.tx}€/h</td><td style="font-weight:700">${fe(c.mt)}</td></tr><tr class="total-row"><td colspan="3" class="total-label" style="padding-right:8mm">TOTAL TTC</td><td style="font-size:16pt;color:#2d5438">${fe(c.mt)}</td></tr></tbody></table><div class="footer">TVA non applicable — Article 293B du CGI (micro-entrepreneur)<br>Modes de paiement acceptés : CESU, espèces, chèque, virement<br>À régler à réception · Merci pour votre confiance.</div></body></html>`;
+  return`<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"><title>Facture ${num}</title><style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:Arial,sans-serif;font-size:12pt;padding:20mm;color:#1a2e1e}.header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20mm;padding-bottom:10mm;border-bottom:3px solid #2d5438}.brand{font-size:18pt;font-weight:900;color:#2d5438;letter-spacing:1px;text-transform:uppercase}.inv-num{font-size:28pt;font-weight:900;color:#2d5438;text-align:right}.client-box{background:#eef4ef;padding:10mm;border-radius:4mm;margin-bottom:12mm}.section-label{font-size:8pt;font-weight:bold;text-transform:uppercase;letter-spacing:1px;color:#5c7a61;margin-bottom:3mm}table{width:100%;border-collapse:collapse;margin:8mm 0}th{background:#2d5438;color:white;padding:3mm 4mm;text-align:left;font-size:9pt}td{padding:3mm 4mm;border-bottom:1px solid #eee}.total-row{border-top:3px solid #2d5438;font-weight:900;font-size:14pt}.total-label{text-align:right}.footer{margin-top:12mm;padding-top:6mm;border-top:1px solid #c5d9c8;font-size:8pt;color:#5c7a61;line-height:1.7}@media print{body{padding:15mm}}</style></head><body><div class="header"><div><div class="brand">PIZOT Thomas</div><div style="font-size:10pt;color:#5c7a61">Entretien Espace Vert · Thomas PIZOT</div><div style="font-size:10pt;color:#5c7a61">📞 07 81 21 81 69</div></div><div style="text-align:right"><div class="inv-num">FACTURE</div><div style="font-size:13pt;font-weight:700;color:#2d5438">${num}</div><div style="font-size:10pt;color:#5c7a61">Émise le ${today}</div><div style="font-size:10pt;color:#5c7a61">Travaux du ${fd(c.date)}</div></div></div><div class="client-box"><div class="section-label">Destinataire</div><div style="font-size:14pt;font-weight:700">${c.cl}</div>${c.adr?`<div style="font-size:10pt;color:#5c7a61">${c.adr}</div>`:''}</div><table><thead><tr><th>Description des prestations</th><th>Durée</th><th>Taux horaire</th><th>Montant</th></tr></thead><tbody><tr><td>${c.desc||'Entretien espace vert'}</td><td>${c.h}h</td><td>${c.tx}€/h</td><td style="font-weight:700">${fe(c.mt)}</td></tr><tr class="total-row"><td colspan="3" class="total-label" style="padding-right:8mm">TOTAL TTC</td><td style="font-size:16pt;color:#2d5438">${fe(c.mt)}</td></tr></tbody></table><div class="footer">TVA non applicable — Article 293B du CGI (micro-entrepreneur)<br>Modes de paiement acceptés : CESU, espèces, chèque, virement<br>À régler à réception · Merci pour votre confiance.</div></body></html>`;
 }
 function printInv(){const w=window.open('','_blank','width=800,height=900');w.document.write(_invHtml);w.document.close();setTimeout(()=>w.print(),500)}
 
@@ -1169,21 +1777,205 @@ function importBk(input){
 }
 
 /* ════════════════ MODALS ════════════════ */
-function openM(id){document.getElementById(id).classList.add('open')}
+function openM(id){document.getElementById(id).classList.add('open');if(id==='mov-backup')initRelanceDelaySel();}
 function closeM(id){document.getElementById(id).classList.remove('open')}
 document.querySelectorAll('.mov').forEach(el=>el.addEventListener('click',e=>{if(e.target===el)el.classList.remove('open')}));
 
+
+/* ════════════════ MAP ════════════════ */
+let _map=null,_mapTiles=null;
+
+async function geocodeAddr(adr){
+  try{
+    const r=await fetch(`https://api-adresse.data.gouv.fr/search/?q=${encodeURIComponent(adr)}&limit=1`);
+    const d=await r.json();
+    const f=(d.features||[])[0];
+    if(f){const c=f.geometry.coordinates;return{lat:c[1],lon:c[0]}}
+  }catch{}
+  return null;
+}
+
+function getMapYear(){return document.getElementById('map-year-flt')?.value||''}
+
+async function renderMap(){
+  const container=document.getElementById('dash-map');if(!container)return;
+  const yr=getMapYear();
+  // Build year selector
+  const yrs=[...new Set(items.filter(c=>c.statut==='realise').map(c=>(c.date||'').substr(0,4)).filter(Boolean))].sort().reverse();
+  const mSel=document.getElementById('map-year-flt');const curY=mSel?.value||'';
+  if(mSel)mSel.innerHTML='<option value="">Tous</option>'+yrs.map(y=>`<option value="${y}" ${y===curY?'selected':''}>${y}</option>`).join('');
+  // Filter items
+  let src=items.filter(c=>(c.adr||c.coords)&&(!yr||(c.date||'').startsWith(yr)));
+  if(!src.length){
+    if(_map){_map.remove();_map=null}
+    container.innerHTML=`<div class="map-empty"><div style="font-size:36px">🗺️</div><div style="font-weight:700">Aucun point à afficher</div><div style="font-size:12px">Les coordonnées sont enregistrées automatiquement quand vous choisissez une adresse via la recherche</div></div>`;
+    return;
+  }
+  // Group by client+coords
+  const byKey={};
+  for(const c of src){
+    if(!c.coords&&!c.adr)continue;
+    const k=c.cl+(c.adr||'');
+    if(!byKey[k])byKey[k]={cl:c.cl,adr:c.adr||'',coords:c.coords||null,ch:[],rdv:[],anyUnpaid:false};
+    if(c.statut==='realise'){byKey[k].ch.push(c);if(!c.paye)byKey[k].anyUnpaid=true}
+    else byKey[k].rdv.push(c);
+    if(!byKey[k].coords&&c.coords)byKey[k].coords=c.coords;
+  }
+  // Lazy geocode items without coords (max 5 at a time to avoid rate limit)
+  let geocoded=0;
+  for(const k of Object.keys(byKey)){
+    const g=byKey[k];
+    if(!g.coords&&g.adr&&geocoded<5){
+      g.coords=await geocodeAddr(g.adr);geocoded++;
+      if(g.coords){
+        // Back-fill coords into items
+        src.filter(c=>(c.adr||'')===(g.adr||'')&&!c.coords).forEach(c=>c.coords=g.coords);
+        sa();
+      }
+    }
+  }
+  const pts=Object.values(byKey).filter(g=>g.coords);
+  // Always show the map, with or without markers
+  if(!pts.length && geocoded===0){
+    // Show default map over SE France
+    if(_map){_map.remove();_map=null}
+    container.innerHTML='';container.style.height='320px';
+    _map=L.map(container,{zoomControl:true,scrollWheelZoom:false});
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',{attribution:'&copy; OSM &copy; CARTO',subdomains:'abcd',maxZoom:19}).addTo(_map);
+    _map.setView([44.5,4.8],9);
+    const info=L.control();info.onAdd=()=>{const d=L.DomUtil.create('div');d.style.cssText='background:white;padding:8px 12px;border-radius:8px;font-size:12px;color:#5c7a61;box-shadow:0 2px 8px rgba(0,0,0,.15)';d.innerHTML='📍 Saisissez des adresses via la recherche<br>pour voir les marqueurs sur la carte';return d};info.addTo(_map);
+    return;
+  }
+  if(!pts.length)return;
+  // Init / reset Leaflet
+  if(_map){_map.remove();_map=null}
+  container.innerHTML='';
+  container.style.height='320px';
+  _map=L.map(container,{zoomControl:true,scrollWheelZoom:false});
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
+    attribution:'© <a href="https://osm.org/copyright">OpenStreetMap</a>',maxZoom:18
+  }).addTo(_map);
+  const marks=[];
+  pts.forEach(g=>{
+    const ca=g.ch.reduce((s,c)=>s+(c.mt||0),0);
+    const nb=g.ch.length,nrdv=g.rdv.length;
+    const col=g.ch.length===0?'#3b82c4':g.anyUnpaid?'#d97535':'#6d9a70';
+    const r=Math.max(7,Math.min(16,7+Math.sqrt(ca/500)));
+    const m=L.circleMarker([g.coords.lat,g.coords.lon],{
+      radius:r,fillColor:col,color:'#fff',weight:2.5,fillOpacity:.9
+    });
+    const lastCh=g.ch.sort((a,b)=>(b.date||'').localeCompare(a.date||''))[0];
+    m.bindPopup(`
+      <div style="font-family:'Open Sans',sans-serif;min-width:160px">
+        <div style="font-weight:800;font-size:14px;color:#2d5438;margin-bottom:6px">${g.cl}</div>
+        ${g.adr?`<div style="font-size:11px;color:#5c7a61;margin-bottom:6px">📍 ${g.adr}</div>`:''}
+        ${nb?`<div style="font-size:12px;margin-bottom:2px"><b>${nb}</b> chantier${nb>1?'s':''} · <b style="color:${g.anyUnpaid?'#d97535':'#6d9a70'}">${new Intl.NumberFormat('fr-FR',{style:'currency',currency:'EUR',maximumFractionDigits:0}).format(ca)}</b></div>`:''}
+        ${nrdv?`<div style="font-size:12px;color:#3b82c4"><b>${nrdv}</b> RDV</div>`:''}
+        ${lastCh?`<div style="font-size:11px;color:#5c7a61;margin-top:4px">Dernière visite: ${lastCh.date?.split('-').reverse().join('/')}</div>`:''}
+        ${g.anyUnpaid?'<div style="font-size:11px;color:#c0392b;font-weight:700;margin-top:4px">⚠️ Impayé(s) en attente</div>':''}
+      </div>`,{maxWidth:240}
+    );
+    m.addTo(_map);marks.push(m);
+  });
+  if(marks.length){
+    try{_map.fitBounds(L.featureGroup(marks).getBounds().pad(.25))}
+    catch{_map.setView([44.5,5.0],9)}
+  }
+}
+
+
+/* ════ COLLÈGUES DETAIL DASHBOARD ════ */
+let _collDetVisible=false;
+function toggleCollDet(){
+  _collDetVisible=!_collDetVisible;
+  const card=document.getElementById('coll-det-card');
+  const btn=document.getElementById('coll-det-btn');
+  if(card)card.style.display=_collDetVisible?'block':'none';
+  if(btn)btn.textContent=_collDetVisible?'✕ Fermer':'📋 Détail';
+  if(_collDetVisible)renderCollDet();
+}
+
+function renderCollDet(){
+  const el=document.getElementById('coll-det-body');if(!el)return;
+  const data=items.filter(c=>c.statut==='realise'&&c.coll&&(!dashY||(c.date||'').startsWith(dashY)))
+    .sort((a,b)=>(b.date||'').localeCompare(a.date||''));
+  if(!data.length){el.innerHTML='<div class="empty" style="padding:16px"><p>Aucun chantier avec collègue pour cette période</p></div>';return}
+  let html='<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:12px;min-width:520px">'
+    +'<thead><tr style="background:var(--dark)">'
+    +'<th style="padding:8px 10px;color:white;font-family:Raleway,sans-serif;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.7px;text-align:left">Date</th>'
+    +'<th style="padding:8px 10px;color:white;font-family:Raleway,sans-serif;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.7px;text-align:left">Client</th>'
+    +'<th style="padding:8px 10px;color:white;font-family:Raleway,sans-serif;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.7px;text-align:left">Travaux</th>'
+    +'<th style="padding:8px 10px;color:white;font-family:Raleway,sans-serif;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.7px;text-align:left">Collègue</th>'
+    +'<th style="padding:8px 10px;color:white;font-family:Raleway,sans-serif;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.7px;text-align:right">H coll.</th>'
+    +'<th style="padding:8px 10px;color:white;font-family:Raleway,sans-serif;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.7px;text-align:right">Taux</th>'
+    +'<th style="padding:8px 10px;color:white;font-family:Raleway,sans-serif;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.7px;text-align:right">Rém. collègue</th>'
+    +'<th style="padding:8px 10px;color:white;font-family:Raleway,sans-serif;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.7px;text-align:right">CA chantier</th>'
+    +'</tr></thead><tbody>';
+  let totalCollMt=0,totalCa=0;
+  data.forEach((c,i)=>{
+    const bg=i%2===0?'white':'var(--bg)';
+    const collMt=c.collMt||(c.collH&&c.collTx?c.collH*c.collTx:0);
+    totalCollMt+=collMt;totalCa+=c.mt||0;
+    html+='<tr style="background:'+bg+'">'
+      +'<td style="padding:9px 10px;white-space:nowrap;color:var(--muted);font-size:11px">'+fd(c.date)+'</td>'
+      +'<td style="padding:9px 10px;font-weight:700">'+c.cl+'</td>'
+      +'<td style="padding:9px 10px;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+( c.desc||'—')+'</td>'
+      +'<td style="padding:9px 10px"><span style="background:rgba(59,130,196,.1);color:var(--blue2);padding:2px 8px;border-radius:10px;font-size:11px;font-weight:700">👷 '+c.coll+'</span></td>'
+      +'<td style="padding:9px 10px;text-align:right;font-weight:700">'+(c.collH||'—')+(c.collH?'h':'')+'</td>'
+      +'<td style="padding:9px 10px;text-align:right;color:var(--muted)">'+(c.collTx?c.collTx+'€/h':'—')+'</td>'
+      +'<td style="padding:9px 10px;text-align:right;font-weight:800;color:var(--orange)">'+(collMt>0?fe(collMt):'—')+'</td>'
+      +'<td style="padding:9px 10px;text-align:right;font-weight:800;color:var(--sage2)" class="mv">'+fe(c.mt)+'</td>'
+      +'</tr>';
+  });
+  html+='<tr style="background:var(--dark);color:white">'
+    +'<td colspan="6" style="padding:9px 10px;font-family:Raleway,sans-serif;font-weight:900;font-size:11px;text-transform:uppercase;letter-spacing:.7px">TOTAUX ('+data.length+' chantiers)</td>'
+    +'<td style="padding:9px 10px;text-align:right;font-weight:900;color:var(--orange-lt)" class="mv">'+fe(totalCollMt)+'</td>'
+    +'<td style="padding:9px 10px;text-align:right;font-weight:900;color:var(--pale)" class="mv">'+fe(totalCa)+'</td>'
+    +'</tr></tbody></table></div>';
+  el.innerHTML=html;
+}
+
+/* ════ HISTORIQUE CLIENT RAPIDE (RDV Planifiés) ════ */
+
+function qhOpenClient(id){closeM('mov-actions');setTimeout(()=>openClientEdit(id),120);}
+function showQuickHist(encoded){
+  const name=decodeURIComponent(encoded);
+  const acts=items.filter(c=>c.statut==='realise'&&(c.cl||'').toLowerCase()===name.toLowerCase())
+    .sort((a,b)=>(b.date||'').localeCompare(a.date||'')).slice(0,5);
+  document.getElementById('action-title').textContent='📋 '+name+' — Dernières interventions';
+  let html='';
+  if(!acts.length){
+    html='<div class="empty" style="padding:16px"><div class="ei">🌿</div><p>Aucune intervention précédente pour ce client</p></div>';
+  }else{
+    acts.forEach(c=>{
+      const ago=ddays(c.date);const agoStr=ago===0?'Auj.':ago+'j';
+      html+='<div class="action-btn" style="cursor:default;background:'+(c.paye?'rgba(109,154,112,.06)':'rgba(217,117,53,.05)')+'">'
+        +'<div class="ab-icon">'+(c.paye?'✅':'⏳')+'</div>'
+        +'<div style="flex:1;min-width:0"><div class="ab-label">'+(c.desc||'Travaux')+'</div>'
+        +'<div class="ab-sub">'+fd(c.date)+' · '+agoStr+' · '+c.h+'h'+(c.mt?' · '+fe(c.mt):'')+(c.coll?' · 👷 '+c.coll:'')+'</div></div></div>';
+    });
+    const cl=clients.find(x=>fullName(x).toLowerCase()===name.toLowerCase()||x.nom.toLowerCase()===name.toLowerCase());
+    if(cl){
+      html+='<button class="action-btn" data-clid="'+cl.id+'" onclick="qhOpenClient(this.dataset.clid)">'
+        +'<div class="ab-icon">👤</div><div><div class="ab-label">Ouvrir la fiche complète</div><div class="ab-sub">Tél, email, historique complet</div></div></button>';
+    }
+  }
+  document.getElementById('action-btns').innerHTML=html;
+  openM('mov-actions');
+}
+
 /* ════════════════ RENDER ALL ════════════════ */
 function renderAll(){
-  renderCal();renderChT();renderRgl();renderMat();renderDash();renderAList();
+  renderCal();renderPlanned();renderChT();renderClients();renderRgl();renderMat();renderDash();renderAList();
   if(selDate)selDay(selDate);uHdr();updateBackupInfo();
+  // map triggered by goTab when switching to dash
   const yrs=[...new Set(items.filter(c=>c.statut==='realise').map(c=>(c.date||'').substr(0,4)).filter(Boolean))].sort().reverse();
   const sel=document.getElementById('flt-year'),cur=sel?.value;
   if(sel)sel.innerHTML='<option value="">Toutes</option>'+yrs.map(y=>`<option value="${y}" ${y===cur?'selected':''}>${y}</option>`).join('');
 }
 
 /* ════════════════ INIT ════════════════ */
-setRT('pro');togglePF();
+setRT('pro');togglePF();migrateCl();
 startSplash();
 </script>
 </body>
